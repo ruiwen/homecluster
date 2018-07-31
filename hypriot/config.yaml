@@ -1,0 +1,69 @@
+#cloud-config
+# vim: syntax=yaml
+#
+# https://blog.hypriot.com/post/cloud-init-cloud-on-hypriot-x64/
+
+hostname: slackhome3
+manage_etc_hosts: localhost
+
+users:
+  - name: ruiwen
+    shell: /bin/bash
+    groups: docker,sudo
+    passwd: # Hashed password from /etc/shadow
+    lock_passwd: false
+    ssh_pwauth: no
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDn01b6YaROfh22dVMvGM/+OKixSts7Txp311vBYfn1P42wBjdlzFhRfNviGqpFDRAEJ+jQyKOXA+nOWAX9CDZMUlYIqm7VWocwaZsk5TpxIRQGLxuvLm3LdYUthB3ItT6ohnBS5P6Ek9r+T4GPQHrJyIgvKGHeFsUR2IrnIkHq9zBc3/Rz6FhhOWR3hbuwbvQUgEiofTSowjagvY4C9W4IsDaOOzAv4DSehMQTPSj+zUvJXtvGBluaSqQLCwgmCpK4OQqc7VKPGD9Ai8mkC5uysxIcPsw/BUXCZZ0N8vud0okHmGUdNV2blkfIEfKLYVr9NCGhqZ/mvXZP1Jz1GxTL ruiwen@thoughtmonkeys.com
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3MDF/FNqszT100tNpgXJogXJ+Z4Qj363xgp+gkky5+rTWRT8b0ZB8AJ3g/Xa4fKMOq+gd9y3a2/FIS8+f33SnKzXN0luMsw2r8KnezrCgjV9rnytip0aKxnBTTJ5lVwzCd+thul/qRVTN6HIILb3Fb9lqOgysU1Uqqdl7mxQTq8YTOhLNEC91NLlD/Q+XMMMRpoBDkN6j8TGZSsDg7tiOgkkLNTVVfOcE6uZy0l8NLf1gRJSwyD8aQidDZiyhvAKK92xIztKgSe7Fz99FQvahh7iNhP7yjd+vNU8AXHySkQV/tgs5M8pI/QRnZ2IdFHceBbNzyVKiO5e1ZYiF0U9n slackpi
+
+ssh_delete_keys: true
+no_ssh_fingerprints: yes
+
+locale: "en_US.UTF-8"
+timezone: Asia/Singapore
+ntp:
+  pools:
+    - 0.sg.pool.ntp.org
+    - 1.sg.pool.ntp.org
+    - 2.sg.pool.ntp.org
+
+# Ref https://cloudinit.readthedocs.io/en/18.3/topics/network-config.html#default-behavior
+# Disable cloud-init's network config, which automatically issues a DHCP request, ignoring
+# our static IP setup
+network:
+  config: disabled
+
+write_files:
+  - content: |
+      allow-hotplug wlan0
+      auto wlan0
+      iface wlan0 inet static
+        address 192.168.1.x
+        netmask 255.255.255.0
+        gateway 192.168.1.1
+        dns-nameservers 192.168.1.y 8.8.8.8
+      wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+      # iface snailzroute inet static
+    path: /etc/network/interfaces.d/wlan0
+  - content: |
+      ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+      update_config=1
+      country=SG
+      network={
+        ssid="Router"
+        psk=  # Hashed wifi passphrase using wpa_passphrase
+        proto=RSN
+        key_mgmt=WPA-PSK
+        pairwise=CCMP
+        auth_alg=OPEN
+        id_str="router"
+      }
+    path: /etc/wpa_supplicant/wpa_supplicant.conf
+
+package_update: true
+package_upgrade: true
+
+runcmd:
+  - [ sudo, reboot ]
+
