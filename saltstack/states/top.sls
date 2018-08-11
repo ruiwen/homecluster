@@ -6,4 +6,4 @@ base:
     - salt
   'roles:kubernetes':
     - match: grain
-    - kubernetes
+    - docker
