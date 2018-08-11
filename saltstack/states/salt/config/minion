@@ -5,6 +5,3 @@ master: {{ master }}
 # "salt-key -f master.pub" on the Salt master.
 master_finger: {{ master_fingerprint }}
 
-grains:
-  roles:
-    - salt-minion
