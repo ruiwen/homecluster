@@ -7,3 +7,5 @@ base:
   'roles:kubernetes':
     - match: grain
     - docker
+    - kubernetes.packages
+    - kubernetes.portmap
