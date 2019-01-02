@@ -3,8 +3,8 @@
 #   - base
 #   - salt.config
 
-{% set salt_version = '2018.3.2+ds-1' %}
-{% set role = 'master' if 'salt-master' in grains['roles'] else 'minion' %}
+{% set salt_version = '2018.3.3+ds-2' %}
+{% set salt_id = grains['localhost'] %}
 
 # Ref: https://docs.saltstack.com/en/latest/topics/installation/debian.html
 salt-repo:
@@ -20,6 +20,13 @@ salt-repo:
 
 {% for role in ['minion', 'master'] %}
 {% if "salt-%s" % role in grains['roles'] %}
+
+{% if role == 'minion' %}
+/etc/salt/minion_id:
+  file.managed:
+    - contents: {{ salt_id }}
+{% endif %}
+
 saltstack-{{ role }}:
   pkg.installed:
     - refresh: True
@@ -44,7 +51,7 @@ saltstack-{{ role }}:
   service.running:
     - name: salt-{{ role }}
     - enable: True
-    - reload: True
+      #    - reload: True
     - watch:
       - file: saltstack-{{ role }}
     - require:

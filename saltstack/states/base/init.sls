@@ -7,3 +7,6 @@ curl:
 
 python-apt:
   pkg.installed
+
+software-properties-common:
+  pkg.installed

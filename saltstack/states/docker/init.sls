@@ -1,6 +1,6 @@
 # Installs Docker and configures the daemon for persistent restarts
 
-{% set docker_version = '17.12.1~ce-0~raspbian' %}
+{% set docker_version = '18.06.0~ce~3-0~raspbian' %}
 
 docker-repo:
   pkgrepo.managed:
