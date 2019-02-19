@@ -8,4 +8,14 @@ base:
     - match: grain
     - docker
     - kubernetes.packages
-    - kubernetes.portmap
+    # - kubernetes.portmap
+  'roles:app-etcd'
+    - match: grain
+    - etcd
+  'roles:pihole'
+    - match: grain
+    - pihole
+  'roles:hass'
+    - match: grain
+    - hass
+
