@@ -1,4 +1,6 @@
 {
   "live-restore": true,
-  "storage-driver": "overlay2"
+  "storage-driver": "overlay2",
+  "dns": ["8.8.8.8"]
+
 }
