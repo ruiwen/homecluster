@@ -1,5 +1,5 @@
 
-{% set kubernetes_version = '1.11' %}
+{% set kubernetes_version = '1.13.3' %}
 
 include:
   - base

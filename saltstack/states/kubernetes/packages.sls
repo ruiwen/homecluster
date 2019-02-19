@@ -1,6 +1,6 @@
 # Install the Kubernetes repo and essential packages
 
-{% set kubernetes_version='1.11.0-00' %}
+{% set kubernetes_version='1.13.3-00' %}
 {% set kubernetes_cni_version='0.6.0-00' %}
 
 # If the system has added Google's repo and key before, the key may have expired
