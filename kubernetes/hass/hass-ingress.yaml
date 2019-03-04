@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hass
+spec:
+  rules:
+    - host: hass.lab
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: hass
+              servicePort: 80
+

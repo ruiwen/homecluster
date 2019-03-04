@@ -1,0 +1,30 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: hass
+  namespace: hass
+spec:
+  type: ClusterIP
+  selector:
+     app: hass
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8123
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: hass-public
+  namespace: hass
+spec:
+  type: NodePort
+  externalIPs:
+    - "192.168.1.203"
+  selector:
+     app: hass
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8123
+

@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name:  hass
+  namespace: hass
+  labels:
+    app: hass
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hass
+    spec:
+      hostNetwork: true
+      containers:
+        - name: hass
+          image: homeassistant/raspberrypi3-homeassistant:0.88.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8123
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+        - name: config
+          hostPath:
+            path: /mnt/storage/hass/config
+      nodeSelector:
+        node-role.kubernetes.io/hass: hass
+  strategy:
+    type: "RollingUpdate"
+    rollingUpdate:
+      maxUnavailable: 30%
+      maxSurge: 50%
+  minReadySeconds: 30
+  revisionHistoryLimit: 5
