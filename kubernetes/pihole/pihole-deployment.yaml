@@ -1,0 +1,82 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name:  pihole
+  namespace: pihole
+  labels:
+    app: pihole
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pihole
+    spec:
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 127.0.0.1
+          - 1.1.1.1
+      containers:
+        - name: pihole
+          image: pihole/pihole:4.2.2-1_armhf
+          imagePullPolicy: IfNotPresent
+          env:
+            # - name: ServerIP
+            #   valueFrom:
+            #     fieldRef:
+            #       fieldPath: status.hostIP
+            - name: TZ
+              value: Asia/Singapore
+            - name: WEBPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pihole-secrets
+                  key: webpassword
+            - name: DNS1
+              value: 208.67.222.222
+            - name: DNS2
+              value: 1.1.1.1
+            - name: VIRTUAL_HOST
+              value: pihole
+            - name: IPv6
+              value: "False"
+            - name: DNSMASQ_USER
+              value: pihole
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+            - containerPort: 53
+              name: dns
+              protocol: TCP
+              hostPort: 53
+            - containerPort: 53
+              name: dnsudp
+              protocol: UDP
+              hostPort: 53
+          volumeMounts:
+            - name: pihole-data
+              mountPath: /etc/pihole
+            - name: dnsmasq-data
+              mountPath: /etc/dnsmasq.d
+          # securityContext:
+          #  capabilities:
+          #    add:
+          #      - NET_ADMIN
+      volumes:
+        - name: pihole-data
+          hostPath:
+            path: /mnt/storage/pihole/pihole
+        - name: dnsmasq-data
+          hostPath:
+            path: /mnt/storage/pihole/dnsmasq
+      nodeSelector:
+        node-role.kubernetes.io/pihole: pihole
+  strategy:
+    type: "RollingUpdate"
+    rollingUpdate:
+      maxUnavailable: 30%
+      maxSurge: 50%
+  minReadySeconds: 30
+  revisionHistoryLimit: 5

@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pihole
+  namespace: pihole
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: pihole.lab
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: pihole
+              servicePort: 80
