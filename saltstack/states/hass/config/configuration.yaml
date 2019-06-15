@@ -16,9 +16,6 @@ homeassistant:
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
-# Show the introduction message on startup.
-introduction:
-
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 # http:
 #   base_url: example.duckdns.org:8123
@@ -44,10 +41,10 @@ sensor:
       - type: ipv4_address
         arg: eth0
       - type: processor_use
-      - type: load_1m
+      - type: load_15m
 
   - platform: pi_hole
-    host: 192.168.1.202
+    host: !secret pihole_host
     monitored_conditions:
       - ads_blocked_today
       - ads_percentage_today
@@ -55,11 +52,17 @@ sensor:
       - unique_clients
       - clients_ever_seen
 
+  - platform: mqtt
+    name: Bridge state
+    state_topic: "homeassistant/bridge/state"
+    icon: mdi:router-wireless
+
 system_health:
 
 # Text to speech
 tts:
-  - platform: google
+  - platform: google_translate
+    service_name: google_say
 
 
 discovery:
@@ -74,7 +77,7 @@ device_tracker:
       - 192.168.10.0/24
 
 http:
-  server_port: 80
+  server_port: 8123
   base_url: http://hass.lab/
   use_x_forwarded_for: true
   trusted_proxies:
@@ -83,10 +86,50 @@ http:
 
 speedtestdotnet:
   server_id: 5754  # Fastmetrics, Inc. San Francisco
+  scan_interval:
+    hours: 3
   monitored_conditions:
     - ping
     - download
     - upload
+
+xiaomi_aqara:
+  gateways:
+    - host: !secret xiaomi_gateway_host
+      mac: !secret xiaomi_gateway_mac
+      key: !secret xiaomi_gateway_key
+  interface: !secret xiaomi_gateway_interface
+
+mqtt:
+  discovery: true
+  broker: 127.0.0.1
+  port: 1883
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+
+# MQTT Settings in UI
+# Ref: https://github.com/danielwelch/hassio-zigbee2mqtt#pairing
+input_boolean:
+  zigbee_permit_join:
+    name: Allow devices to join
+    initial: off
+    icon: mdi:cellphone-wireless
+
+timer:
+  zigbee_permit_join:
+    name: Time remaining
+    duration: 300 # Updated this to the number of seconds you wish
+
+# MQTT
+#
+    # sensor:
+    #   - platform: mqtt
+    #     name: Bridge state
+    #     state_topic: "homeassistant/bridge/state"
+    #     icon: mdi:router-wireless
+
+
+### End MQTT Settings
 
 group: !include groups.yaml
 automation: !include automations.yaml
