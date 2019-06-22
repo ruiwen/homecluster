@@ -57,6 +57,13 @@ sensor:
     state_topic: "homeassistant/bridge/state"
     icon: mdi:router-wireless
 
+  - platform: broadlink
+    host: !secret rmpro_host
+    mac: !secret rmpro_mac
+    monitored_conditions:
+      - 'temperature'
+      - 'noise'
+
 system_health:
 
 # Text to speech
