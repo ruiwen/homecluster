@@ -191,6 +191,20 @@ switch:
         command_off: "sgB8AAYEIw8HBAYsBgQGLAYEJBEEBAkAAgkOLA4sLA8OLA4sDyssDw4sLA8rDw8sDiwOLA8sDiwOLQ4sKw8sDysPLA8OLA4sLBIOAAIJDS0OLCoRDiwOLA4tKREOLSkRKRINLQ4sDi0NLQ4sDi0NLSkRKhEpESoRDiwOLCoABdwAAAAAAAAAAAAAAAA="
 
 
+
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_bot_api_key
+    allowed_chat_ids:
+      - !secret telegram_chat_id
+
+notify:
+  - name: telegram
+    platform: telegram
+    chat_id: !secret telegram_chat_id
+
+
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
