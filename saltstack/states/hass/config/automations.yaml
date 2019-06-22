@@ -1,4 +1,3 @@
-automation:
 
 ### Automation for enabling joining the Zigbee network
   - id: enable_zigbee_join
@@ -49,3 +48,154 @@ automation:
         entity_id: input_boolean.zigbee_permit_join
 
 ### End automation for joining the Zigbee network
+
+
+### Automate Master Aircon
+
+  - alias: Double click to activate sleep cycle
+    trigger:
+      - platform: mqtt
+        topic: homeassistant/0x00158d0002c4ad49
+    condition:
+      condition: and
+      conditions:
+        - condition: template
+          value_template: "{{ trigger.payload_json['click'] == 'double' }}"
+        - condition: state
+          entity_id: input_boolean.sleep_master
+          state: "off"
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.sleep_master
+
+
+  # Sleep Cycle Steps
+  - id: sleep_start
+    alias: Start sleep cycle
+    trigger:
+      - platform: state
+        entity_id: input_boolean.sleep_master
+        to: "on"
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.sleep_master
+        state: "on"
+
+    action:
+      - service: script.aircon_on
+        data:
+          temp: 25
+
+      - delay: '00:00:01'
+
+      - service: script.fan_master_on
+        data:
+          speed: 3
+
+      - service: timer.start
+        data_template:
+          entity_id: timer.sleep_cool_initial_90
+          duration: '{% if states.input_boolean.debug.state == "on" %}5{% else %}5400{% endif %}'
+
+      - service: notify.telegram
+        data_template:
+          message: "Sleep start"
+
+
+  - id: sleep_cool
+    alias: Room has cooled
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.sleep_cool_initial_90
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.sleep_master
+        state: "on"
+
+    action:
+      - service: script.fan_master_on
+        data:
+          speed: 1
+
+      - service: timer.start
+        data_template:
+          entity_id: timer.sleep_aircon_cool_limit
+          duration: '{% if states.input_boolean.debug.state == "on" %}5{% else %}18025{% endif %}'
+
+      - service: notify.telegram
+        data_template:
+          message: "Room has cooled"
+
+
+  - id: sleep_fan
+    alias: Switch aircon to fan mode # at 4:25am weekdays, 6:25am weekends, or after 5hrs 25mins if sooner
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.sleep_aircon_cool_limit
+
+      - platform: template
+        value_template: >
+          {% set curr_time = now() | as_timestamp | timestamp_custom('%H:%M', True) %}
+          {% if now().isoweekday() in [6, 7] and curr_time == '06:25' %}
+          true
+          {% elif curr_time == '04:25' %}
+          true
+          {% endif %}
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.sleep_master
+        state: "on"
+
+    action:
+      - service: script.aircon_on
+        data:
+          temp: fan
+
+      - delay: '00:00:01'
+
+      - service: script.fan_master_on
+        data:
+          speed: 3
+
+      - service: timer.start
+        data_template:
+          entity_id: timer.sleep_aircon_fan
+          duration: '{% if states.input_boolean.debug.state == "on" %}5{% else %}300{% endif %}'
+
+      - service: notify.telegram
+        data:
+          message: "Switch aircon to fan"
+
+  - id: sleep_aircon_off
+    alias: End sleep cycle
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.sleep_aircon_fan
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.sleep_master
+        state: "on"
+
+    action:
+      - service: script.aircon_off
+
+      - service: input_boolean.turn_off
+        data:
+          entity_id: input_boolean.sleep_master
+
+      - service: notify.telegram
+        data:
+          message: "Sleep cycle done"
+
+
+### End automation for Master Aircon

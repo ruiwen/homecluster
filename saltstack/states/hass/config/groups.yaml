@@ -1,0 +1,9 @@
+
+master_sleep_automation:
+  name: Master — Sleep Automation
+  icon: mdi:bed-empty
+  entities:
+    - automation.start_sleep_cycle
+    - automation.room_has_cooled
+    - automation.switch_aircon_to_fan_mode
+    - automation.end_sleep_cycle

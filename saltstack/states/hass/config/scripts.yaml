@@ -1,0 +1,95 @@
+
+aircon_on:
+  alias: "Aircon On (Default 25 deg)"
+  sequence:
+    # - service: switch.turn_on
+    #   entity_id: switch.aircon_master_25deg_cool
+    # - condition: state
+    #   entity_id: input_boolean.debug
+    #   state: 'off'
+    - service: switch.turn_on
+      data_template:
+        entity_id: >
+          {% if temp == '24' %}
+          switch.aircon_master_24deg_cool
+          {% elif temp == 'fan' %}
+          switch.aircon_master_fan
+          {% else %}
+          switch.aircon_master_25deg_cool
+          {% endif %}
+
+    - service: input_select.select_option
+      data_template:
+        entity_id: input_select.master_aircon
+        option: '{{ temp }}{% if temp not in ["fan"] %} Deg{% endif %}'
+
+    - service: notify.telegram
+      data_template:
+        message: Aircon on — Temp is {{ temp }}
+
+aircon_off:
+  alias: "Aircon Off"
+  sequence:
+    # - condition: state
+    #   entity_id: input_boolean.debug
+    #   state: 'off'
+    - service: switch.turn_off
+      entity_id: switch.aircon_master_off
+
+    - service: input_select.select_option
+      data_template:
+        entity_id: input_select.master_aircon
+        option: 'Off'
+
+    - service: notify.telegram
+      data:
+        message: "Aircon off"
+
+
+fan_master_on:
+  alias: "Master Fan — On"
+  sequence:
+    # - condition: state
+    #   entity_id: input_boolean.debug
+    #   state: 'off'
+    - service: switch.turn_on
+      data_template:
+        entity_id: >
+          {% if speed == '1' %}
+          switch.fan_master_speed_1
+          {% elif speed == '5' %}
+          switch.fan_master_speed_5
+          {% elif speed == 'off' %}
+          switch.fan_master_off
+          {% else %}
+          switch.fan_master_speed_3
+          {% endif %}
+
+    - service: input_select.select_option
+      data_template:
+        entity_id: input_select.master_fan
+        option: "Speed {{ speed }}"
+
+    - service: notify.telegram
+      data_template:
+        message: Master fan on — Speed is {{ speed }}
+
+
+fan_master_off:
+  alias: "Master Fan — Off"
+  sequence:
+    # - condition: state
+    #   entity_id: input_boolean.debug
+    #   state: 'off'
+    - service: script.turn_off
+      entity_id: switch.fan_master_off
+
+    - service: input_select.select_option
+      data_template:
+        entity_id: input_select.master_fan
+        option: "Off"
+
+    - service: notify.telegram
+      data:
+        message: "Master fan is off"
+

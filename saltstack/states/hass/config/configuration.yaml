@@ -12,6 +12,7 @@ homeassistant:
   time_zone: Asia/Singapore
   # Customization file
   customize: !include customize.yaml
+  customize_glob: !include customize_glob.yaml
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
@@ -122,19 +123,36 @@ input_boolean:
     initial: off
     icon: mdi:cellphone-wireless
 
+  debug:
+    name: Debug Mode
+    initial: off
+    icon: mdi:wrench
+
+  sleep_master:
+    name: Sleep time
+    initial: off
+    icon: mdi:sleep
+
 timer:
   zigbee_permit_join:
     name: Time remaining
     duration: 300 # Updated this to the number of seconds you wish
 
-# MQTT
-#
-    # sensor:
-    #   - platform: mqtt
-    #     name: Bridge state
-    #     state_topic: "homeassistant/bridge/state"
-    #     icon: mdi:router-wireless
+  sleep_cool_initial_90:
+    name: Time to cool mode
+    duration: 5400 # 90 mins for room to cool
 
+  sleep_aircon_cool_limit:
+    name: Time to run the aircon cool
+    duration: 18025 # 5hrs 25mins as the max aircon running time per night
+
+  sleep_aircon_fan:
+    name: Warm up aircon with fan mode
+    duration: 300 # 10 mins
+
+  sleep_done:
+    name: Time to sleep_done
+    duration: 10
 
 ### End MQTT Settings
 
@@ -191,6 +209,28 @@ switch:
         command_off: "sgB8AAYEIw8HBAYsBgQGLAYEJBEEBAkAAgkOLA4sLA8OLA4sDyssDw4sLA8rDw8sDiwOLA8sDiwOLQ4sKw8sDysPLA8OLA4sLBIOAAIJDS0OLCoRDiwOLA4tKREOLSkRKRINLQ4sDi0NLQ4sDi0NLSkRKhEpESoRDiwOLCoABdwAAAAAAAAAAAAAAAA="
 
 
+
+# Input Selectors
+input_select:
+  master_aircon:
+    name: Master Aircon
+    icon: mdi:air-conditioner
+    options:
+      - 25 Deg
+      - 24 Deg
+      - Fan
+      - 'Off'
+    initial: 'Off'
+
+  master_fan:
+    name: Master Fan
+    icon: mdi:fan
+    options:
+      - Speed 1
+      - Speed 3
+      - Speed 5
+      - "Off"
+    initial: "Off"
 
 
 telegram_bot:

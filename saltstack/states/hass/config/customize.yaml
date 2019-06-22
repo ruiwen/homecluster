@@ -1,0 +1,24 @@
+
+# Living Room Occupancy
+"binary_sensor.0x00158d0002c4c154_occupancy":
+  friendly_name: Living Room Occupancy
+"sensor.0x00158d0002c4c154_battery":
+  friendly_name: Living Room Occupancy - Battery
+"sensor.0x00158d0002c4c154_linkquality":
+  friendly_name: Living Room Occupancy - Link Quality
+
+# Remote Button
+"sensor.0x00158d0002c4ad49_click":
+  friendly_name: Remote Button Click
+"sensor.0x00158d0002c4ad49_battery":
+  friendly_name: Remote Button - Battery
+"sensor.0x00158d0002c4ad49_linkquality":
+  friendly_name: Remote Button - Link Quality
+
+# Master Presence
+"binary_sensor.0x00158d0002c4c065_occupancy":
+  friendly_name: Master Occupancy
+"sensor.0x00158d0002c4c065_battery":
+  friendly_name: Master Ooccupancy - Battery
+"sensor.0x00158d0002c4c065_linkquality":
+  friendly_name: Master Occupancy - Link Quality
